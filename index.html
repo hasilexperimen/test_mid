@@ -2,60 +2,36 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Audio Captcha Demo</title>
+  <title>Simple Audio Captcha Demo</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.12.0/p5.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.12.0/addons/p5.sound.min.js"></script>
 </head>
 <body>
-  <h2>Audio Captcha Demo</h2>
+  <h2>Simple Audio Captcha Demo</h2>
   <button id="playBtn">Play Captcha Audio</button>
 
   <script>
-    let soundFile, filter, delay, reverb, playing = false;
+    let soundFile;
 
     function preload() {
-      soundFormats('wav', 'mp3');
-      soundFile = loadSound('three.wav',
-        () => console.log('✅ Audio loaded'),
-        () => console.error('⚠️ Failed to load audio')
-      );
+      soundFormats('wav');
+      soundFile = loadSound('three.wav', 
+        () => console.log('✅ Audio loaded'), 
+        () => console.error('❌ Failed to load audio'));
     }
 
     function setup() {
       noCanvas();
-      filter = new p5.BandPass();
-      delay = new p5.Delay();
-      reverb = new p5.Reverb();
-      soundFile.disconnect();
-      soundFile.connect(filter);
-      filter.connect(delay);
-      delay.connect(reverb);
-      reverb.connect();
-
-      randomizeEffects();
-
       const btn = document.getElementById('playBtn');
       btn.addEventListener('click', () => {
-        userStartAudio();
+        userStartAudio();  // wajib agar audio bisa diputar di browser modern
         if (soundFile && soundFile.isLoaded()) {
-          soundFile.setVolume(1);
           soundFile.play();
-          playing = true;
-          soundFile.onended(() => {
-            playing = false;
-            randomizeEffects();
-          });
-        } else console.warn('❌ Audio belum siap');
+          console.log('▶️ Playing audio...');
+        } else {
+          console.log('⏳ Audio not ready yet');
+        }
       });
-    }
-
-    function randomizeEffects() {
-      filter.freq(random(300, 1200));
-      filter.res(random(5, 15));
-      delay.delayTime(random(0.1, 0.3));
-      delay.feedback(random(0.3, 0.6));
-      delay.filter(random(500, 1500));
-      reverb.set(random(0.2, 0.5), 2);
     }
   </script>
 </body>
