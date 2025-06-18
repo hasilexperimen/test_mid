@@ -2,23 +2,53 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Test p5.sound</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.12.0/p5.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.12.0/addons/p5.sound.min.js"></script>
+  <title>Audio Captcha with Web Audio API</title>
 </head>
 <body>
-  <h2>p5.sound Test</h2>
+  <h2>Audio Captcha Demo with Web Audio API</h2>
+  <button id="playBtn">Play Captcha Audio</button>
 
   <script>
-    function setup() {
-      noCanvas();
-      let osc = new p5.Oscillator('sine');
-      userStartAudio();
-      osc.start();
-      osc.amp(0.5);
-      setTimeout(() => osc.stop(), 1000);
-      console.log('🔊 Should hear a sine tone for 1 sec');
+    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    let audioBuffer;
+
+    // Load audio file via fetch and decode
+    async function loadAudio() {
+      try {
+        const response = await fetch('three.wav');
+        if (!response.ok) throw new Error('Network response was not ok');
+        const arrayBuffer = await response.arrayBuffer();
+        audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+        console.log('✅ Audio loaded');
+      } catch (error) {
+        console.error('❌ Error loading audio:', error);
+      }
     }
+
+    function playAudio() {
+      if (!audioBuffer) {
+        console.warn('Audio not loaded yet');
+        return;
+      }
+      // Resume context if suspended (required by some browsers)
+      if (audioContext.state === 'suspended') {
+        audioContext.resume();
+      }
+      const source = audioContext.createBufferSource();
+      source.buffer = audioBuffer;
+
+      // Example: Add scrambling effect here later
+
+      source.connect(audioContext.destination);
+      source.start();
+      console.log('▶️ Playing audio...');
+    }
+
+    document.getElementById('playBtn').addEventListener('click', () => {
+      playAudio();
+    });
+
+    loadAudio();
   </script>
 </body>
 </html>
